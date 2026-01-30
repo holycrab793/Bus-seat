@@ -56,6 +56,13 @@
     .download-btn { background: #8b5cf6; color: white; }
     .download-btn:hover { background: #7c3aed; transform: translateY(-2px); }
 
+    /* ✅ 캡처 영역(좌석+운전석/문+상태+복도 명단만 저장) */
+    #capture-area {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 0;
+    }
+
     .bus {
       background: #f8f9fa;
       border-radius: 15px;
@@ -153,7 +160,7 @@
       border-color: #667eea;
     }
     .seat.filled input { color: white; font-weight: 600; }
-    .seat.filled input::placeholder { color: rgba(255, 255, 255, 0.6); }
+    .seat.filled input::placeholder { color: rgba(255,255,255,0.6); }
 
     .seat-number {
       position: absolute;
@@ -162,7 +169,7 @@
       font-size: 9px;
       color: #9ca3af;
     }
-    .seat.filled .seat-number { color: rgba(255, 255, 255, 0.7); }
+    .seat.filled .seat-number { color: rgba(255,255,255,0.7); }
 
     .last-row {
       display: flex;
@@ -173,13 +180,85 @@
 
     .status {
       text-align: center;
-      margin-top: 15px;
+      margin-top: 12px;
       padding: 10px;
       background: #f0fdf4;
       border-radius: 10px;
       font-size: 14px;
       color: #166534;
     }
+
+    /* ✅ 복도(입석) 영역 */
+    .standing {
+      margin-top: 12px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 12px 10px;
+    }
+    .standing-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .standing-title {
+      font-weight: 700;
+      color: #374151;
+      font-size: 14px;
+    }
+    .standing-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .mini-btn {
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .mini-btn:hover { transform: translateY(-1px); }
+    .standing-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .standing-item {
+      background: #ffffff;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .standing-badge {
+      min-width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: #111827;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
+    .standing-item input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-weight: 600;
+      background: transparent;
+    }
+    .standing-item.filled {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
     .toast {
       position: fixed;
       top: 20px;
@@ -193,47 +272,86 @@
       z-index: 1000;
       opacity: 0;
       transition: opacity 0.3s;
+      max-width: 92vw;
+      text-align: center;
+      line-height: 1.35;
+      white-space: pre-line;
     }
     .toast.show { opacity: 1; }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>🚌 45인승 버스 좌석배치</h1>
     <p class="subtitle">좌석을 클릭하여 이름을 입력하세요</p>
 
     <div class="controls">
-      <button class="save-btn" onclick="saveSeating()">💾 저장</button>
+      <button class="save-btn" onclick="saveAll()">💾 저장</button>
       <button class="clear-btn" onclick="clearAll()">🗑️ 삭제</button>
       <button class="share-btn" onclick="shareSeatingImage()">🔗 공유</button>
       <button class="download-btn" onclick="shareSeatingImage()">📷 사진저장</button>
     </div>
 
-    <div class="bus">
-      <div class="driver-row">
-        <div class="row-number"></div>
-        <div class="driver-seat">🚗 운전석</div>
-        <div class="aisle"></div>
-        <div class="door">🚪 문</div>
+    <!-- ✅ 캡처 영역: 여기만 이미지로 저장/공유됨 -->
+    <div id="capture-area">
+      <div class="bus">
+        <div class="driver-row">
+          <div class="row-number"></div>
+          <div class="driver-seat">🚗 운전석</div>
+          <div class="aisle"></div>
+          <div class="door">🚪 문</div>
+        </div>
+
+        <div id="bus-seats"></div>
       </div>
 
-      <div id="bus-seats"></div>
-    </div>
+      <div class="status" id="status">
+        탑승인원: <strong>0</strong>/45명
+      </div>
 
-    <div class="status" id="status">
-      탑승인원: <strong>0</strong>/45명
+      <!-- ✅ 복도(입석) 탑승자 -->
+      <div class="standing" id="standing">
+        <div class="standing-header">
+          <div class="standing-title">🧍 복도(입석) 탑승자</div>
+          <div class="standing-actions">
+            <button class="mini-btn" type="button" onclick="addStanding()">+ 추가</button>
+            <button class="mini-btn" type="button" onclick="removeStanding()">- 삭제</button>
+          </div>
+        </div>
+        <div class="standing-list" id="standing-list"></div>
+      </div>
     </div>
+    <!-- /캡처 영역 -->
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    let seatData = {};
+    // 저장 키
+    const STORAGE_KEY = 'bus-seating-v2';
+
+    // 상태
+    let seatData = {};          // { seatNumber: name }
+    let standingData = [];      // [name, name, ...]
     let seatCounter = 1;
 
+    // 복도 칸 기본 개수(원하면 숫자만 바꾸면 됨)
+    const DEFAULT_STANDING_SLOTS = 6;
+    const MAX_STANDING_SLOTS = 20;
+
     function init() {
+      buildSeats();
+      buildStanding(DEFAULT_STANDING_SLOTS);
+      loadAll();
+      updateStatus();
+    }
+
+    function buildSeats() {
       const busSeats = document.getElementById('bus-seats');
+      busSeats.innerHTML = '';
+      seatCounter = 1;
 
       for (let row = 1; row <= 10; row++) {
         const rowDiv = document.createElement('div');
@@ -276,10 +394,8 @@
       lastRow.className = 'last-row';
       for (let i = 0; i < 5; i++) lastRow.appendChild(createSeat(seatCounter++));
       lastRowContainer.appendChild(lastRow);
-      busSeats.appendChild(lastRowContainer);
 
-      loadSeating();
-      updateStatus();
+      busSeats.appendChild(lastRowContainer);
     }
 
     function createSeat(number) {
@@ -313,22 +429,98 @@
       return seat;
     }
 
-    function saveSeating() {
-      try {
-        localStorage.setItem('bus-seating', JSON.stringify(seatData));
-        showToast('💾 좌석 배치가 저장되었습니다!');
-      } catch (e) {
-        console.error('Storage error:', e);
-        showToast('⚠️ 저장 실패. 다시 시도해주세요.');
+    function buildStanding(count) {
+      const list = document.getElementById('standing-list');
+      list.innerHTML = '';
+
+      // standingData 길이를 count에 맞춰 조정(기존 데이터 유지)
+      const next = Array.from({ length: count }, (_, i) => (standingData[i] || ''));
+      standingData = next;
+
+      for (let i = 0; i < count; i++) {
+        list.appendChild(createStandingItem(i));
       }
     }
 
-    function loadSeating() {
-      try {
-        const dataStr = localStorage.getItem('bus-seating');
-        if (!dataStr) return;
+    function createStandingItem(index) {
+      const item = document.createElement('div');
+      item.className = 'standing-item';
+      item.dataset.standing = index;
 
-        seatData = JSON.parse(dataStr) || {};
+      const badge = document.createElement('div');
+      badge.className = 'standing-badge';
+      badge.textContent = index + 1;
+      item.appendChild(badge);
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = '이름';
+      input.dataset.standing = index;
+
+      input.addEventListener('input', (e) => {
+        const v = e.target.value.trim();
+        standingData[index] = v;
+        if (v) item.classList.add('filled');
+        else item.classList.remove('filled');
+        updateStatus();
+      });
+
+      item.appendChild(input);
+      return item;
+    }
+
+    function addStanding() {
+      const current = standingData.length;
+      if (current >= MAX_STANDING_SLOTS) {
+        showToast(`⚠️ 복도 탑승자는 최대 ${MAX_STANDING_SLOTS}명까지 추가 가능합니다.`);
+        return;
+      }
+      buildStanding(current + 1);
+      updateStatus();
+      showToast('➕ 복도 칸 추가');
+    }
+
+    function removeStanding() {
+      const current = standingData.length;
+      if (current <= 1) {
+        showToast('⚠️ 더 이상 삭제할 수 없습니다.');
+        return;
+      }
+      // 마지막 칸 값이 있으면 확인(실수 방지)
+      const lastVal = (standingData[current - 1] || '').trim();
+      if (lastVal && !confirm('마지막 복도 칸에 입력된 이름이 삭제됩니다. 계속하시겠습니까?')) return;
+
+      buildStanding(current - 1);
+      updateStatus();
+      showToast('➖ 복도 칸 삭제');
+    }
+
+    function saveAll() {
+      try {
+        const payload = {
+          seatData,
+          standingData,
+          standingSlots: standingData.length
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        showToast('💾 저장 완료');
+      } catch (e) {
+        console.error(e);
+        showToast('⚠️ 저장 실패');
+      }
+    }
+
+    function loadAll() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+
+        const payload = JSON.parse(raw) || {};
+        seatData = payload.seatData || {};
+        standingData = Array.isArray(payload.standingData) ? payload.standingData : [];
+        const slots = payload.standingSlots || Math.max(DEFAULT_STANDING_SLOTS, standingData.length || 0);
+
+        // 좌석 반영
         Object.keys(seatData).forEach(seatNum => {
           const input = document.querySelector(`input[data-seat="${seatNum}"]`);
           if (input) {
@@ -337,83 +529,124 @@
           }
         });
 
-        updateStatus();
+        // 복도 칸 재구성 + 값 반영
+        buildStanding(Math.min(Math.max(1, slots), MAX_STANDING_SLOTS));
+        standingData.forEach((name, i) => {
+          const input = document.querySelector(`input[data-standing="${i}"]`);
+          const item = document.querySelector(`.standing-item[data-standing="${i}"]`);
+          if (input) input.value = name || '';
+          if (item && (name || '').trim()) item.classList.add('filled');
+        });
+
       } catch (e) {
-        console.error('Load error:', e);
+        console.error(e);
       }
     }
 
     function clearAll() {
-      if (!confirm('정말로 모든 좌석을 삭제하시겠습니까?')) return;
+      if (!confirm('정말로 모든 좌석/복도 탑승자를 삭제하시겠습니까?')) return;
 
       seatData = {};
+      standingData = Array.from({ length: DEFAULT_STANDING_SLOTS }, () => '');
+
       document.querySelectorAll('.seat input').forEach(input => {
         input.value = '';
         input.parentElement.classList.remove('filled');
       });
 
-      try { localStorage.removeItem('bus-seating'); } catch (e) {}
+      buildStanding(DEFAULT_STANDING_SLOTS);
 
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
       updateStatus();
-      showToast('🗑️ 모든 좌석이 삭제되었습니다.');
-    }
-
-    // ✅ 공유/사진저장 통일: 이미지 생성 후 공유 시트만 띄움
-    async function shareSeatingImage() {
-      try {
-        showToast('📷 이미지 생성중...');
-
-        const container = document.querySelector('.container');
-        const canvas = await html2canvas(container, {
-          backgroundColor: '#ffffff',
-          scale: 2,
-          logging: false
-        });
-
-        const blob = await new Promise((resolve, reject) => {
-          canvas.toBlob(b => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png');
-        });
-
-        const date = new Date().toISOString().slice(0,10);
-        const file = new File([blob], `버스좌석배치_${date}.png`, { type: 'image/png' });
-
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: '45인승 버스 좌석배치',
-            text: '공유 메뉴에서 “사진에 저장”을 선택하세요.',
-            files: [file]
-          });
-          showToast('✅ 공유 메뉴에서 “사진에 저장”을 선택하세요.');
-          return;
-        }
-
-        showToast('⚠️ 이 브라우저는 파일 공유를 지원하지 않습니다. iPhone은 Safari, Android는 Chrome 권장');
-      } catch (error) {
-        console.error('shareSeatingImage error:', error);
-        showToast('⚠️ 이미지 생성/공유 실패. 다시 시도해주세요.');
-      }
+      showToast('🗑️ 전체 삭제 완료');
     }
 
     function updateStatus() {
-      const filledSeats = Object.keys(seatData).length;
+      const seatCount = Object.keys(seatData).length;
+      const standingCount = standingData.filter(v => (v || '').trim()).length;
+      const total = seatCount + standingCount;
+
       document.getElementById('status').innerHTML =
-        `탑승인원: <strong>${filledSeats}</strong>/45명`;
+        `탑승인원: <strong>${total}</strong>명 (좌석 <strong>${seatCount}</strong>/45, 복도 <strong>${standingCount}</strong>)`;
     }
 
     function showToast(message) {
       const toast = document.getElementById('toast');
       toast.textContent = message;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 3000);
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove('show'), 2600);
     }
 
-    // 자동저장: 좌석 input에서만 동작
+    function detectEnv() {
+      const ua = navigator.userAgent || '';
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const isAndroid = /Android/i.test(ua);
+      const isKakaoInApp = /KAKAOTALK/i.test(ua);
+      return { isIOS, isAndroid, isKakaoInApp };
+    }
+
+    // ✅ 캡처 대상: #capture-area (제목/버튼 제외)
+    async function renderToPngFile() {
+      const container = document.getElementById('capture-area');
+
+      const canvas = await html2canvas(container, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false
+      });
+
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(b => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png');
+      });
+
+      const date = new Date().toISOString().slice(0, 10);
+      return new File([blob], `버스좌석배치_${date}.png`, { type: 'image/png' });
+    }
+
+    // ✅ 공유/사진저장 통일 + 카톡에 문구가 딸려가지 않도록 text 제거
+    async function shareSeatingImage() {
+      const { isIOS, isAndroid, isKakaoInApp } = detectEnv();
+
+      try {
+        showToast('📷 이미지 생성중...');
+        const file = await renderToPngFile();
+
+        const canFileShare = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] }));
+        if (!canFileShare) {
+          showToast(isIOS ? '⚠️ 공유가 안 되면 Safari에서 열어주세요.' : '⚠️ 공유가 안 되면 Chrome에서 열어주세요.');
+          return;
+        }
+
+        await navigator.share({
+          title: '45인승 버스 좌석배치',
+          files: [file]
+        });
+
+        if (isKakaoInApp) {
+          showToast('✅ 카톡 전송은 사진만 갑니다.\n사진 앱 저장은 공유 메뉴에서 “사진에 저장” 선택');
+        } else if (isIOS) {
+          showToast('✅ 공유 메뉴에서 “사진에 저장”을 선택할 수 있습니다.');
+        } else if (isAndroid) {
+          showToast('✅ 갤러리/Google 포토로 저장 또는 카톡 공유가 가능합니다.');
+        } else {
+          showToast('✅ 공유 완료');
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('⚠️ 공유가 취소되었거나 실패했습니다.');
+      }
+    }
+
+    // 자동저장: 좌석/복도 입력에서만 동작
     let saveTimeout;
     document.addEventListener('input', (e) => {
-      if (!(e.target && e.target.matches && e.target.matches('#bus-seats input'))) return;
+      const t = e.target;
+      if (!(t && t.matches)) return;
+      if (!(t.matches('#bus-seats input') || t.matches('#standing-list input'))) return;
 
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => saveSeating(), 1000);
+      saveTimeout = setTimeout(() => saveAll(), 900);
     });
 
     init();
