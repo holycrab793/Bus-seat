@@ -16,7 +16,7 @@
     }
 
     .container{
-      max-width: 980px;     /* ✅ 화면 표시 영역은 넓게 */
+      max-width: 980px;
       margin: 0 auto;
       background:#fff;
       border-radius:20px;
@@ -53,7 +53,7 @@
     .share-btn{ background:#3b82f6; color:#fff; }
     .download-btn{ background:#8b5cf6; color:#fff; }
 
-    /* ✅ 폰에서는 “가로 스크롤로 보는” 캡처 영역 뷰어 */
+    /* 폰에서는 가로 스크롤로 넓은 레이아웃 보기 */
     .capture-viewport{
       width: 100%;
       overflow-x:auto;
@@ -70,7 +70,7 @@
 
     /* ✅ 캡처되는 실제 영역(고정 폭) */
     #capture-area{
-      width: 920px;                  /* ✅ 핵심: 넓은 고정 폭(공유 이미지 품질 안정) */
+      width: 920px;
       margin: 0 auto;
       background:#ffffff;
       border-radius:18px;
@@ -128,7 +128,7 @@
 
     .driver-row{
       display:grid;
-      grid-template-columns: 52px 1fr 44px 1fr;
+      grid-template-columns: 48px 1fr 44px 1fr;   /* ✅ 52px -> 48px */
       gap:12px;
       align-items:center;
       margin-bottom:14px;
@@ -159,16 +159,16 @@
       opacity:.8;
     }
 
-    /* ✅ 좌석 줄: grid로 고정 폭/정렬 안정 */
+    /* ✅ 좌석 줄: 좌석 칼럼을 살짝 넓게 */
     .row{
       display:grid;
-      grid-template-columns: 52px 1fr 1fr 44px 1fr 1fr;
+      grid-template-columns: 48px 1.08fr 1.08fr 44px 1.08fr 1.08fr; /* ✅ 좌석 가로 확대 */
       gap:12px;
       align-items:center;
       margin-bottom:12px;
     }
     .row-number{
-      width:52px;
+      width:48px;             /* ✅ 52px -> 48px */
       text-align:center;
       font-weight:950;
       color:#6b7280;
@@ -179,14 +179,13 @@
       background:#fff;
       border:2px solid #e5e7eb;
       border-radius:14px;
-      height:76px;                /* ✅ 크게 */
+      height:76px;
       position:relative;
       display:flex;
       align-items:center;
       justify-content:center;
       overflow:hidden;
     }
-
     .seat:hover{ border-color:#667eea; }
 
     .seat-number{
@@ -206,7 +205,7 @@
       outline:none;
       background:transparent;
       text-align:center;
-      font-size:22px;             /* ✅ 글자 키움 */
+      font-size:22px;
       font-weight:950;
       letter-spacing:-0.6px;
       padding: 10px 10px 8px;
@@ -221,7 +220,7 @@
     .seat.filled .seat-number{ color: rgba(255,255,255,0.78); }
     .seat.filled input{ color:#fff; }
 
-    /* ✅ 캡처용 표시 텍스트(2줄 고정, 절대 안 잘리게) */
+    /* ✅ 캡처용 표시 텍스트(2줄) */
     .seat-label{
       position:absolute;
       inset:0;
@@ -235,7 +234,6 @@
       line-height:1.05;
       pointer-events:none;
 
-      /* 2줄 클램프 */
       display:-webkit-box;
       -webkit-box-orient:vertical;
       -webkit-line-clamp:2;
@@ -245,8 +243,6 @@
       color:#111827;
     }
     .seat.filled .seat-label{ color:#fff; }
-
-    /* 캡처 중에는 input 숨기고 label만 보이게 */
     body.capturing .seat input{ visibility:hidden; }
 
     /* 마지막 줄(5좌석) */
@@ -306,7 +302,7 @@
 
     .standing-list{
       display:grid;
-      grid-template-columns: repeat(3, 1fr);   /* ✅ 넓어진 만큼 3열 */
+      grid-template-columns: repeat(3, 1fr);
       gap:10px;
     }
     .standing-item{
@@ -438,10 +434,10 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    const STORAGE_KEY = 'bus-seating-wide-v1';
+    const STORAGE_KEY = 'bus-seating-wide-v2';
 
-    let seatData = {};        // { seatNumber: name }
-    let standingData = [];    // [name...]
+    let seatData = {};
+    let standingData = [];
     let seatCounter = 1;
 
     const DEFAULT_STANDING_SLOTS = 6;
@@ -510,7 +506,6 @@
       lastRow.innerHTML = '';
       seatCounter = 1;
 
-      // 10 rows * 4 seats = 40
       for (let row=1; row<=10; row++){
         const rowDiv = document.createElement('div');
         rowDiv.className = 'row';
@@ -532,7 +527,6 @@
         busSeats.appendChild(rowDiv);
       }
 
-      // last row 5 seats = 45
       for (let i=0;i<5;i++){
         lastRow.appendChild(createSeat(seatCounter++));
       }
@@ -633,7 +627,6 @@
         standingData = Array.isArray(payload.standingData) ? payload.standingData : [];
         const slots = payload.standingSlots || Math.max(DEFAULT_STANDING_SLOTS, standingData.length || 0);
 
-        // 좌석 반영
         Object.keys(seatData).forEach(seatNum=>{
           const input = document.querySelector(`input[data-seat="${seatNum}"]`);
           if (input){
@@ -642,7 +635,6 @@
           }
         });
 
-        // 복도 반영
         buildStanding(Math.min(Math.max(1, slots), MAX_STANDING_SLOTS));
         standingData.forEach((name, i)=>{
           const input = document.querySelector(`input[data-standing="${i}"]`);
@@ -672,7 +664,7 @@
       showToast('🗑️ 전체 삭제 완료');
     }
 
-    /* ===== 캡처 전처리: input 대신 seat-label 생성(2줄 클램프) ===== */
+    /* 캡처 전처리: input 대신 seat-label 생성(2줄 클램프) */
     function prepareSeatsForCapture(){
       document.querySelectorAll('.seat .seat-label').forEach(el=>el.remove());
 
@@ -682,7 +674,7 @@
 
         const label = document.createElement('div');
         label.className = 'seat-label';
-        label.textContent = name ? name : '';  // 빈칸은 아예 표시 안 함
+        label.textContent = name ? name : '';
         seat.appendChild(label);
       });
     }
@@ -698,7 +690,6 @@
       prepareSeatsForCapture();
       document.body.classList.add('capturing');
 
-      // ✅ “전체 폭(920px)” 그대로 캡처
       const canvas = await html2canvas(container, {
         backgroundColor: '#ffffff',
         scale: 2,
@@ -720,7 +711,6 @@
       return new File([blob], `버스좌석배치_${date}.png`, { type:'image/png' });
     }
 
-    // ✅ 카톡 텍스트 딸려나가는 문제 방지: files만 공유
     async function shareSeatingImage(){
       const { isIOS, isAndroid, isKakaoInApp } = detectEnv();
 
@@ -734,6 +724,7 @@
           return;
         }
 
+        // ✅ files만 공유(카톡에 텍스트 붙는 것 방지)
         await navigator.share({ files:[file] });
 
         if (isKakaoInApp){
