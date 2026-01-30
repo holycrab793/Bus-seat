@@ -22,7 +22,7 @@
       display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px;
     }
     button{
-      padding:12px; border:none; border-radius:10px; font-size:13px; font-weight:700;
+      padding:12px; border:none; border-radius:10px; font-size:13px; font-weight:800;
       cursor:pointer; transition:all .3s;
     }
     .save-btn{ background:#10b981; color:#fff; }
@@ -34,15 +34,15 @@
     .download-btn{ background:#8b5cf6; color:#fff; }
     .download-btn:hover{ background:#7c3aed; transform:translateY(-2px); }
 
-    /* ✅ 캡처 영역(제목/버튼 제외) + 카톡/플랫폼 크롭 방지용 세이프 마진 */
+    /* ✅ 캡처 영역(제목/버튼 제외) + 크롭 방지 세이프 마진 */
     #capture-area{
       background:#ffffff;
       border-radius:16px;
-      padding:16px;            /* 상단 잘림 방지 + 미리보기 안정화 */
+      padding:16px;
       overflow:hidden;
     }
 
-    /* ✅ 이미지 상단 요약 헤더(입석 몇 명 크게) */
+    /* ✅ 이미지 상단 요약(입석 강조) */
     .capture-header{
       background:#111827;
       color:#fff;
@@ -51,7 +51,7 @@
       margin-bottom:12px;
     }
     .capture-title{
-      font-weight:900;
+      font-weight:950;
       font-size:15px;
       letter-spacing:-0.2px;
       display:flex;
@@ -60,7 +60,7 @@
       gap:10px;
     }
     .capture-title .date{
-      font-weight:700;
+      font-weight:800;
       font-size:12px;
       opacity:.85;
       white-space:nowrap;
@@ -81,16 +81,16 @@
     .metric .label{
       font-size:11px;
       opacity:.85;
-      font-weight:800;
+      font-weight:900;
     }
     .metric .value{
       margin-top:2px;
-      font-size:18px;          /* 숫자 크게 */
+      font-size:18px;
       font-weight:950;
       letter-spacing:-0.5px;
     }
     .metric.standing .value{
-      font-size:20px;          /* 입석 더 크게 */
+      font-size:20px;
     }
 
     .bus{
@@ -101,15 +101,15 @@
     }
     .driver-seat{
       flex:1; background:#1f2937; color:#fff; padding:12px; border-radius:10px;
-      text-align:center; font-weight:800; font-size:14px;
+      text-align:center; font-weight:900; font-size:14px;
     }
     .door{
       flex:1; background:#f59e0b; color:#fff; padding:12px; border-radius:10px;
-      text-align:center; font-weight:800; font-size:14px;
+      text-align:center; font-weight:900; font-size:14px;
     }
     .row{ display:flex; gap:6px; margin-bottom:10px; align-items:center; }
     .row-number{
-      width:25px; text-align:center; font-weight:800; color:#6b7280; font-size:13px; flex-shrink:0;
+      width:25px; text-align:center; font-weight:900; color:#6b7280; font-size:13px; flex-shrink:0;
     }
     .seats-left,.seats-right{ display:flex; gap:6px; flex:1; }
     .aisle{ width:15px; text-align:center; color:#d1d5db; font-size:11px; }
@@ -124,16 +124,31 @@
       border-color:#667eea; transform:translateY(-2px);
       box-shadow:0 4px 12px rgba(102,126,234,.2);
     }
+
+    /* ✅ 핵심: 기본은 화면 폭에 따라 자동 축소 + JS로 추가 맞춤 */
     .seat input{
-      width:100%; border:none; background:transparent; text-align:center;
-      font-size:16px; outline:none; font-family:inherit; font-weight:800;
-      padding:0; letter-spacing:-0.5px;
+      width:100%;
+      border:none;
+      background:transparent;
+      text-align:center;
+      outline:none;
+      font-family:inherit;
+      font-weight:900;
+      padding:0 2px;                 /* 약간의 내부 여유 */
+      letter-spacing:-0.6px;
+
+      font-size:clamp(12px, 3.6vw, 16px);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:clip;
     }
+
     .seat.filled{
       background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
       color:#fff; border-color:#667eea;
     }
     .seat.filled input{ color:#fff; }
+
     .seat-number{
       position:absolute; top:2px; left:4px; font-size:9px; color:#9ca3af;
     }
@@ -145,7 +160,7 @@
     .status{
       text-align:center; margin-top:12px; padding:10px;
       background:#f0fdf4; border-radius:12px; font-size:14px; color:#166534;
-      font-weight:800;
+      font-weight:900;
     }
 
     /* ✅ 복도(입석) 영역 */
@@ -155,10 +170,10 @@
     .standing-header{
       display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;
     }
-    .standing-title{ font-weight:900; color:#374151; font-size:14px; }
+    .standing-title{ font-weight:950; color:#374151; font-size:14px; }
     .standing-actions{ display:flex; gap:6px; }
     .mini-btn{
-      padding:8px 10px; border-radius:10px; font-size:12px; font-weight:900;
+      padding:8px 10px; border-radius:10px; font-size:12px; font-weight:950;
       background:#e5e7eb; color:#111827;
     }
     .mini-btn:hover{ transform:translateY(-1px); }
@@ -175,10 +190,17 @@
       font-weight:950; font-size:12px;
     }
     .standing-item input{
-      width:100%; border:none; outline:none; font-size:14px; font-weight:800; background:transparent;
+      width:100%; border:none; outline:none; font-size:14px; font-weight:900; background:transparent;
+      letter-spacing:-0.4px;
     }
     .standing-item.filled{
       border-color:#667eea; box-shadow:0 4px 12px rgba(102,126,234,.15);
+    }
+
+    /* ✅ 캡처 순간 안전 모드: 글자 한 단계 더 줄여서 카톡 미리보기/리사이즈에도 안 잘리게 */
+    body.capturing .seat input{
+      font-size:13px !important;
+      letter-spacing:-0.7px !important;
     }
 
     .toast{
@@ -206,7 +228,6 @@
 
     <!-- ✅ 캡처 영역: 이 안만 이미지로 저장/공유됨 -->
     <div id="capture-area">
-      <!-- ✅ 이미지 상단 요약 -->
       <div class="capture-header">
         <div class="capture-title">
           <div>🚌 좌석배치 요약</div>
@@ -253,20 +274,21 @@
         <div class="standing-list" id="standing-list"></div>
       </div>
     </div>
-    <!-- /캡처 영역 -->
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    const STORAGE_KEY = 'bus-seating-v3';
-    let seatData = {};       // { seatNumber: name }
-    let standingData = [];   // [name...]
+    const STORAGE_KEY = 'bus-seating-v4';
+    let seatData = {};
+    let standingData = [];
     let seatCounter = 1;
 
     const DEFAULT_STANDING_SLOTS = 6;
     const MAX_STANDING_SLOTS = 20;
+
+    function pad(n){ return String(n).padStart(2,'0'); }
 
     function init() {
       buildSeats();
@@ -274,13 +296,34 @@
       loadAll();
       updateStatus();
       setCaptureDate();
+      // 로드 후 전체 좌석 텍스트 1회 맞춤
+      fitAllSeatInputs();
     }
 
     function setCaptureDate(){
       const el = document.getElementById('capture-date');
       const d = new Date();
-      const pad = (n)=> String(n).padStart(2,'0');
       el.textContent = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    /* ✅ 핵심: 입력 글자 폭이 칸을 넘으면 폰트 크기를 줄여서 끝 글자 잘림 방지 */
+    function fitInputText(input, min = 11, max = 16) {
+      if (!input) return;
+
+      if (!input.value) { input.style.fontSize = ''; return; }
+
+      let size = max;
+      input.style.fontSize = size + 'px';
+
+      // iOS/Android에서 안정적으로 동작
+      while (size > min && input.scrollWidth > input.clientWidth) {
+        size -= 1;
+        input.style.fontSize = size + 'px';
+      }
+    }
+
+    function fitAllSeatInputs() {
+      document.querySelectorAll('#bus-seats input[data-seat]').forEach(inp => fitInputText(inp));
     }
 
     function buildSeats() {
@@ -350,12 +393,17 @@
 
       input.addEventListener('input', (e) => {
         const value = e.target.value.trim();
+
+        // ✅ 입력 즉시 글자 맞춤
+        fitInputText(e.target);
+
         if (value) {
           seat.classList.add('filled');
           seatData[number] = value;
         } else {
           seat.classList.remove('filled');
           delete seatData[number];
+          e.target.style.fontSize = ''; // 비우면 복구
         }
         updateStatus();
       });
@@ -455,6 +503,7 @@
           if (input) {
             input.value = seatData[seatNum];
             input.parentElement.classList.add('filled');
+            fitInputText(input); // ✅ 로드 후에도 글자 맞춤
           }
         });
 
@@ -479,6 +528,7 @@
       document.querySelectorAll('.seat input').forEach(input => {
         input.value = '';
         input.parentElement.classList.remove('filled');
+        input.style.fontSize = '';
       });
 
       buildStanding(DEFAULT_STANDING_SLOTS);
@@ -496,7 +546,6 @@
       document.getElementById('status').innerHTML =
         `탑승인원: <strong>${total}</strong>명 (좌석 <strong>${seatCount}</strong>/45, 복도 <strong>${standingCount}</strong>)`;
 
-      // ✅ 이미지 상단 요약 갱신
       document.getElementById('metric-seat').textContent = seatCount;
       document.getElementById('metric-standing').textContent = standingCount;
       document.getElementById('metric-total').textContent = total;
@@ -519,17 +568,22 @@
       };
     }
 
-    // ✅ 캡처 대상: #capture-area (제목/버튼 제외)
     async function renderToPngFile() {
       const container = document.getElementById('capture-area');
+
+      // ✅ 캡처 직전: 글자 맞춤 재확인 + 안전 모드
+      fitAllSeatInputs();
+      document.body.classList.add('capturing');
 
       const canvas = await html2canvas(container, {
         backgroundColor: '#ffffff',
         scale: 2,
         logging: false,
-        scrollY: -window.scrollY,     // iOS/모바일 상단 크롭 보정
+        scrollY: -window.scrollY,
         scrollX: -window.scrollX
       });
+
+      document.body.classList.remove('capturing');
 
       const blob = await new Promise((resolve, reject) => {
         canvas.toBlob(b => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png');
@@ -539,13 +593,13 @@
       return new File([blob], `버스좌석배치_${date}.png`, { type: 'image/png' });
     }
 
-    // ✅ 카톡/메신저 텍스트 붙는 문제 방지: title/text 절대 넣지 않음 (files만)
+    // ✅ 카톡/메신저 텍스트 붙는 문제 방지: title/text 없음 (files만)
     async function shareSeatingImage() {
       const { isIOS, isAndroid, isKakaoInApp } = detectEnv();
 
       try {
         showToast('📷 이미지 생성중...');
-        setCaptureDate(); // 공유 시각 갱신
+        setCaptureDate();
         const file = await renderToPngFile();
 
         const canFileShare = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] }));
@@ -554,7 +608,6 @@
           return;
         }
 
-        // 🔥 핵심: files만 전달
         await navigator.share({ files: [file] });
 
         if (isKakaoInApp) {
@@ -579,9 +632,15 @@
       if (!(t && t.matches)) return;
       if (!(t.matches('#bus-seats input') || t.matches('#standing-list input'))) return;
 
+      // ✅ 입력 중에도 좌석 글자 맞춤(붙여넣기/자동완성 대비)
+      if (t.matches('#bus-seats input')) fitInputText(t);
+
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(() => saveAll(), 900);
     });
+
+    // 화면 회전/리사이즈 시 글자 맞춤 재계산(아이폰/안드로이드 모두 도움)
+    window.addEventListener('resize', () => fitAllSeatInputs());
 
     init();
   </script>
