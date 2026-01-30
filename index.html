@@ -7,272 +7,359 @@
 
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
+
     body{
       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-      min-height:100vh; padding:10px;
+      min-height:100vh;
+      padding:12px;
     }
+
     .container{
-      max-width:480px; margin:0 auto; background:#fff; border-radius:20px;
-      padding:15px; box-shadow:0 20px 60px rgba(0,0,0,0.3);
+      max-width: 980px;     /* ✅ 화면 표시 영역은 넓게 */
+      margin: 0 auto;
+      background:#fff;
+      border-radius:20px;
+      padding:16px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.28);
     }
-    h1{ text-align:center; color:#333; margin-bottom:10px; font-size:24px; }
-    .subtitle{ text-align:center; color:#666; margin-bottom:20px; font-size:14px; }
+
+    h1{ text-align:center; color:#111827; margin:6px 0 8px; font-size:24px; font-weight:900; }
+    .subtitle{ text-align:center; color:#6b7280; margin-bottom:14px; font-size:13px; font-weight:700; }
 
     .controls{
-      display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap:10px;
+      margin-bottom:14px;
     }
+    @media (max-width: 520px){
+      .controls{ grid-template-columns: 1fr 1fr; }
+    }
+
     button{
-      padding:12px; border:none; border-radius:10px; font-size:13px; font-weight:800;
-      cursor:pointer; transition:all .3s;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      font-size:13px;
+      font-weight:900;
+      cursor:pointer;
+      transition:all .2s;
     }
+    button:active{ transform: translateY(1px); }
+
     .save-btn{ background:#10b981; color:#fff; }
-    .save-btn:hover{ background:#059669; transform:translateY(-2px); }
     .clear-btn{ background:#ef4444; color:#fff; }
-    .clear-btn:hover{ background:#dc2626; transform:translateY(-2px); }
     .share-btn{ background:#3b82f6; color:#fff; }
-    .share-btn:hover{ background:#2563eb; transform:translateY(-2px); }
     .download-btn{ background:#8b5cf6; color:#fff; }
-    .download-btn:hover{ background:#7c3aed; transform:translateY(-2px); }
 
-    /* ✅ 캡처 영역(제목/버튼 제외) + 크롭 방지 세이프 마진 */
-    #capture-area{
-      background:#fff;
-      border-radius:16px;
-      padding:16px;       /* iOS/카톡 상단 크롭 방지 */
-      overflow:hidden;
+    /* ✅ 폰에서는 “가로 스크롤로 보는” 캡처 영역 뷰어 */
+    .capture-viewport{
+      width: 100%;
+      overflow-x:auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 10px;
+    }
+    .hint{
+      text-align:center;
+      color:#6b7280;
+      font-size:12px;
+      font-weight:800;
+      margin: 6px 0 10px;
     }
 
-    /* ✅ 이미지 상단 요약(입석 강조) */
+    /* ✅ 캡처되는 실제 영역(고정 폭) */
+    #capture-area{
+      width: 920px;                  /* ✅ 핵심: 넓은 고정 폭(공유 이미지 품질 안정) */
+      margin: 0 auto;
+      background:#ffffff;
+      border-radius:18px;
+      padding:18px;
+      overflow:hidden;
+      box-shadow: inset 0 0 0 1px rgba(17,24,39,0.06);
+    }
+
+    /* 캡처 상단 요약 */
     .capture-header{
       background:#111827;
       color:#fff;
-      border-radius:14px;
-      padding:12px 12px;
-      margin-bottom:12px;
+      border-radius:16px;
+      padding:14px 14px;
+      margin-bottom:14px;
     }
     .capture-title{
-      font-weight:950;
-      font-size:15px;
-      letter-spacing:-0.2px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
+      gap:12px;
+      font-weight:950;
+      font-size:16px;
+      letter-spacing:-0.2px;
     }
     .capture-title .date{
-      font-weight:800;
-      font-size:12px;
-      opacity:.85;
+      font-weight:900;
+      font-size:13px;
+      opacity:.86;
       white-space:nowrap;
     }
     .capture-metrics{
-      margin-top:8px;
+      margin-top:10px;
       display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:8px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
     }
     .metric{
-      background:rgba(255,255,255,0.10);
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:12px;
-      padding:10px 8px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius:14px;
+      padding:12px 10px;
       text-align:center;
     }
-    .metric .label{
-      font-size:11px;
-      opacity:.85;
-      font-weight:900;
-    }
-    .metric .value{
-      margin-top:2px;
-      font-size:18px;
-      font-weight:950;
-      letter-spacing:-0.5px;
-    }
-    .metric.standing .value{ font-size:20px; }
+    .metric .label{ font-size:12px; opacity:.86; font-weight:900; }
+    .metric .value{ margin-top:4px; font-size:22px; font-weight:950; letter-spacing:-0.4px; }
+    .metric.standing .value{ font-size:24px; }
 
+    /* 버스 프레임 */
     .bus{
-      background:#f8f9fa;
-      border-radius:15px;
-      padding:15px 10px;
-      position:relative;
+      background:#f3f4f6;
+      border-radius:18px;
+      padding:16px 14px;
     }
+
     .driver-row{
-      display:flex; gap:6px; margin-bottom:15px; align-items:center;
+      display:grid;
+      grid-template-columns: 52px 1fr 44px 1fr;
+      gap:12px;
+      align-items:center;
+      margin-bottom:14px;
     }
+    .driver-row .row-number{ height:1px; }
     .driver-seat{
-      flex:1; background:#1f2937; color:#fff; padding:12px; border-radius:10px;
-      text-align:center; font-weight:900; font-size:14px;
+      background:#1f2937;
+      color:#fff;
+      padding:14px 10px;
+      border-radius:14px;
+      text-align:center;
+      font-weight:950;
+      font-size:16px;
     }
     .door{
-      flex:1; background:#f59e0b; color:#fff; padding:12px; border-radius:10px;
-      text-align:center; font-weight:900; font-size:14px;
+      background:#f59e0b;
+      color:#fff;
+      padding:14px 10px;
+      border-radius:14px;
+      text-align:center;
+      font-weight:950;
+      font-size:16px;
     }
-    .row{ display:flex; gap:6px; margin-bottom:10px; align-items:center; }
+    .aisle{
+      width:44px;
+      text-align:center;
+      font-size:16px;
+      opacity:.8;
+    }
+
+    /* ✅ 좌석 줄: grid로 고정 폭/정렬 안정 */
+    .row{
+      display:grid;
+      grid-template-columns: 52px 1fr 1fr 44px 1fr 1fr;
+      gap:12px;
+      align-items:center;
+      margin-bottom:12px;
+    }
     .row-number{
-      width:25px; text-align:center; font-weight:900; color:#6b7280; font-size:13px; flex-shrink:0;
+      width:52px;
+      text-align:center;
+      font-weight:950;
+      color:#6b7280;
+      font-size:14px;
     }
-    .seats-left,.seats-right{ display:flex; gap:6px; flex:1; }
-    .aisle{ width:15px; text-align:center; color:#d1d5db; font-size:11px; }
 
     .seat{
-      flex:1;
       background:#fff;
       border:2px solid #e5e7eb;
-      border-radius:10px;
-      padding:18px 6px;
-      text-align:center;
-      transition:all .3s;
-      cursor:pointer;
+      border-radius:14px;
+      height:76px;                /* ✅ 크게 */
       position:relative;
-      min-width:55px;
-      min-height:52px;
       display:flex;
       align-items:center;
       justify-content:center;
-      overflow:hidden;         /* 캡처 텍스트가 밖으로 삐져나오지 않게 */
+      overflow:hidden;
     }
-    .seat:hover{
-      border-color:#667eea;
-      transform:translateY(-2px);
-      box-shadow:0 4px 12px rgba(102,126,234,.2);
+
+    .seat:hover{ border-color:#667eea; }
+
+    .seat-number{
+      position:absolute;
+      top:6px;
+      left:8px;
+      font-size:11px;
+      font-weight:900;
+      color:#9ca3af;
+      pointer-events:none;
     }
 
     .seat input{
       width:100%;
+      height:100%;
       border:none;
+      outline:none;
       background:transparent;
       text-align:center;
-      outline:none;
-      font-family:inherit;
-      font-weight:900;
-      padding:0 2px;
+      font-size:22px;             /* ✅ 글자 키움 */
+      font-weight:950;
       letter-spacing:-0.6px;
-      font-size:16px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:clip;
+      padding: 10px 10px 8px;
+      color:#111827;
     }
+    .seat input::placeholder{ color: transparent; }
 
     .seat.filled{
       background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-      color:#fff;
       border-color:#667eea;
     }
+    .seat.filled .seat-number{ color: rgba(255,255,255,0.78); }
     .seat.filled input{ color:#fff; }
 
-    .seat-number{
-      position:absolute; top:3px; left:5px; font-size:9px; color:#9ca3af;
-      pointer-events:none;
-    }
-    .seat.filled .seat-number{ color:rgba(255,255,255,.78); }
-
-    .last-row{ display:flex; gap:8px; margin-top:20px; }
-    .last-row .seat{ flex:1; }
-
-    .status{
-      text-align:center;
-      margin-top:12px;
-      padding:10px;
-      background:#f0fdf4;
-      border-radius:12px;
-      font-size:14px;
-      color:#166534;
-      font-weight:900;
-    }
-
-    /* ✅ 복도(입석) 영역 */
-    .standing{
-      margin-top:12px;
-      background:#f8f9fa;
-      border-radius:12px;
-      padding:12px 10px;
-    }
-    .standing-header{
-      display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;
-    }
-    .standing-title{ font-weight:950; color:#374151; font-size:14px; }
-    .standing-actions{ display:flex; gap:6px; }
-    .mini-btn{
-      padding:8px 10px;
-      border-radius:10px;
-      font-size:12px;
-      font-weight:950;
-      background:#e5e7eb;
-      color:#111827;
-    }
-    .mini-btn:hover{ transform:translateY(-1px); }
-
-    .standing-list{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-    }
-    .standing-item{
-      background:#fff;
-      border:2px solid #e5e7eb;
-      border-radius:10px;
-      padding:8px 10px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .standing-badge{
-      min-width:26px; height:26px; border-radius:8px;
-      background:#111827; color:#fff;
-      display:flex; align-items:center; justify-content:center;
-      font-weight:950; font-size:12px;
-    }
-    .standing-item input{
-      width:100%;
-      border:none;
-      outline:none;
-      font-size:14px;
-      font-weight:900;
-      background:transparent;
-      letter-spacing:-0.4px;
-    }
-    .standing-item.filled{
-      border-color:#667eea;
-      box-shadow:0 4px 12px rgba(102,126,234,.15);
-    }
-
-    /* ✅ 캡처 전용 텍스트(입력 대신 표시). 2줄 허용/중앙정렬/안 잘리게 */
+    /* ✅ 캡처용 표시 텍스트(2줄 고정, 절대 안 잘리게) */
     .seat-label{
       position:absolute;
       inset:0;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:10px 6px 8px;
+      padding: 14px 12px 10px;
       text-align:center;
       font-weight:950;
-      line-height:1.05;
       letter-spacing:-0.6px;
-      white-space:normal;
-      word-break:keep-all;      /* 한글 끊김 최소화 */
-      overflow:hidden;
+      line-height:1.05;
       pointer-events:none;
-      font-size:14px;
+
+      /* 2줄 클램프 */
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+      overflow:hidden;
+
+      font-size:22px;
       color:#111827;
     }
-    /* 좌석 채움 색상에서는 글씨 흰색 */
     .seat.filled .seat-label{ color:#fff; }
-    /* 캡처 중(카톡 리사이즈 대비): 조금 더 작게 */
-    body.capturing .seat-label{
-      font-size:13px;
-      letter-spacing:-0.7px;
-    }
-    /* 캡처 중에는 input을 숨김 */
+
+    /* 캡처 중에는 input 숨기고 label만 보이게 */
     body.capturing .seat input{ visibility:hidden; }
 
+    /* 마지막 줄(5좌석) */
+    .last-row-wrap{ margin-top:18px; }
+    .last-row-title{
+      text-align:center;
+      font-weight:950;
+      color:#6b7280;
+      margin-bottom:10px;
+    }
+    .last-row{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:12px;
+    }
+
+    /* 상태 */
+    .status{
+      margin-top:14px;
+      padding:12px;
+      background:#ecfdf5;
+      border-radius:14px;
+      text-align:center;
+      color:#166534;
+      font-weight:950;
+      font-size:16px;
+    }
+
+    /* 복도(입석) */
+    .standing{
+      margin-top:14px;
+      background:#f3f4f6;
+      border-radius:16px;
+      padding:14px;
+    }
+    .standing-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .standing-title{
+      font-weight:950;
+      color:#111827;
+      font-size:16px;
+    }
+    .standing-actions{ display:flex; gap:8px; }
+    .mini-btn{
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:13px;
+      font-weight:950;
+      background:#e5e7eb;
+      color:#111827;
+    }
+
+    .standing-list{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);   /* ✅ 넓어진 만큼 3열 */
+      gap:10px;
+    }
+    .standing-item{
+      background:#fff;
+      border:2px solid #e5e7eb;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      height:62px;
+    }
+    .standing-badge{
+      width:34px; height:34px;
+      border-radius:12px;
+      background:#111827;
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:950;
+      font-size:14px;
+      flex:0 0 auto;
+    }
+    .standing-item input{
+      width:100%;
+      border:none;
+      outline:none;
+      background:transparent;
+      font-size:18px;
+      font-weight:950;
+      letter-spacing:-0.4px;
+    }
+
     .toast{
-      position:fixed; top:20px; left:50%; transform:translateX(-50%);
-      background:#1f2937; color:#fff; padding:12px 24px; border-radius:10px;
-      box-shadow:0 10px 40px rgba(0,0,0,.3);
-      z-index:1000; opacity:0; transition:opacity .3s;
-      max-width:92vw; text-align:center; line-height:1.35; white-space:pre-line;
+      position:fixed;
+      top:18px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#111827;
+      color:#fff;
+      padding:12px 18px;
+      border-radius:12px;
+      box-shadow:0 10px 40px rgba(0,0,0,.28);
+      z-index:1000;
+      opacity:0;
+      transition:opacity .25s;
+      max-width:92vw;
+      text-align:center;
+      white-space:pre-line;
+      font-weight:850;
+      font-size:13px;
+      line-height:1.35;
     }
     .toast.show{ opacity:1; }
   </style>
@@ -281,7 +368,7 @@
 <body>
   <div class="container">
     <h1>🚌 45인승 버스 좌석배치</h1>
-    <p class="subtitle">좌석을 클릭하여 이름을 입력하세요</p>
+    <div class="subtitle">입력은 폰 화면에 맞게, 공유 이미지는 크게(가독성 우선)</div>
 
     <div class="controls">
       <button class="save-btn" onclick="saveAll()">💾 저장</button>
@@ -290,50 +377,59 @@
       <button class="download-btn" onclick="shareSeatingImage()">📷 사진저장</button>
     </div>
 
-    <!-- ✅ 캡처 영역 -->
-    <div id="capture-area">
-      <div class="capture-header">
-        <div class="capture-title">
-          <div>🚌 좌석배치 요약</div>
-          <div class="date" id="capture-date"></div>
-        </div>
-        <div class="capture-metrics">
-          <div class="metric">
-            <div class="label">좌석</div>
-            <div class="value" id="metric-seat">0</div>
-          </div>
-          <div class="metric standing">
-            <div class="label">복도(입석)</div>
-            <div class="value" id="metric-standing">0</div>
-          </div>
-          <div class="metric">
-            <div class="label">총원</div>
-            <div class="value" id="metric-total">0</div>
-          </div>
-        </div>
-      </div>
+    <div class="hint">📌 좌우로 스크롤하면 전체 배치가 보입니다 (공유 이미지는 전체 폭으로 저장)</div>
 
-      <div class="bus">
-        <div class="driver-row">
-          <div class="row-number"></div>
-          <div class="driver-seat">🚗 운전석</div>
-          <div class="aisle"></div>
-          <div class="door">🚪 문</div>
-        </div>
-        <div id="bus-seats"></div>
-      </div>
-
-      <div class="status" id="status">탑승인원: <strong>0</strong>명</div>
-
-      <div class="standing" id="standing">
-        <div class="standing-header">
-          <div class="standing-title">🧍 복도(입석) 탑승자</div>
-          <div class="standing-actions">
-            <button class="mini-btn" type="button" onclick="addStanding()">+ 추가</button>
-            <button class="mini-btn" type="button" onclick="removeStanding()">- 삭제</button>
+    <div class="capture-viewport">
+      <div id="capture-area">
+        <div class="capture-header">
+          <div class="capture-title">
+            <div>🚌 좌석배치 요약</div>
+            <div class="date" id="capture-date"></div>
+          </div>
+          <div class="capture-metrics">
+            <div class="metric">
+              <div class="label">좌석</div>
+              <div class="value" id="metric-seat">0</div>
+            </div>
+            <div class="metric standing">
+              <div class="label">복도(입석)</div>
+              <div class="value" id="metric-standing">0</div>
+            </div>
+            <div class="metric">
+              <div class="label">총원</div>
+              <div class="value" id="metric-total">0</div>
+            </div>
           </div>
         </div>
-        <div class="standing-list" id="standing-list"></div>
+
+        <div class="bus">
+          <div class="driver-row">
+            <div class="row-number"></div>
+            <div class="driver-seat">🚗 운전석</div>
+            <div class="aisle">🚶</div>
+            <div class="door">🚪 문</div>
+          </div>
+
+          <div id="bus-seats"></div>
+
+          <div class="last-row-wrap">
+            <div class="last-row-title">11</div>
+            <div class="last-row" id="last-row"></div>
+          </div>
+        </div>
+
+        <div class="status" id="status">탑승인원: <strong>0</strong>명</div>
+
+        <div class="standing" id="standing">
+          <div class="standing-header">
+            <div class="standing-title">🧍 복도(입석) 탑승자</div>
+            <div class="standing-actions">
+              <button class="mini-btn" type="button" onclick="addStanding()">+ 추가</button>
+              <button class="mini-btn" type="button" onclick="removeStanding()">- 삭제</button>
+            </div>
+          </div>
+          <div class="standing-list" id="standing-list"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -342,23 +438,16 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    const STORAGE_KEY = 'bus-seating-v5';
-    let seatData = {};       // { seatNumber: name }
-    let standingData = [];   // [name...]
+    const STORAGE_KEY = 'bus-seating-wide-v1';
+
+    let seatData = {};        // { seatNumber: name }
+    let standingData = [];    // [name...]
     let seatCounter = 1;
 
     const DEFAULT_STANDING_SLOTS = 6;
-    const MAX_STANDING_SLOTS = 20;
+    const MAX_STANDING_SLOTS = 30;
 
     function pad(n){ return String(n).padStart(2,'0'); }
-
-    function init(){
-      buildSeats();
-      buildStanding(DEFAULT_STANDING_SLOTS);
-      loadAll();
-      updateStatus();
-      setCaptureDate();
-    }
 
     function setCaptureDate(){
       const el = document.getElementById('capture-date');
@@ -366,54 +455,21 @@
       el.textContent = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
 
-    function buildSeats(){
-      const busSeats = document.getElementById('bus-seats');
-      busSeats.innerHTML = '';
-      seatCounter = 1;
+    function showToast(message){
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(()=>toast.classList.remove('show'), 2600);
+    }
 
-      for (let row = 1; row <= 10; row++){
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'row';
-
-        const rowNum = document.createElement('div');
-        rowNum.className = 'row-number';
-        rowNum.textContent = row;
-        rowDiv.appendChild(rowNum);
-
-        const seatsLeft = document.createElement('div');
-        seatsLeft.className = 'seats-left';
-        for (let i=0;i<2;i++) seatsLeft.appendChild(createSeat(seatCounter++));
-        rowDiv.appendChild(seatsLeft);
-
-        const aisle = document.createElement('div');
-        aisle.className = 'aisle';
-        aisle.textContent = '🚶';
-        rowDiv.appendChild(aisle);
-
-        const seatsRight = document.createElement('div');
-        seatsRight.className = 'seats-right';
-        for (let i=0;i<2;i++) seatsRight.appendChild(createSeat(seatCounter++));
-        rowDiv.appendChild(seatsRight);
-
-        busSeats.appendChild(rowDiv);
-      }
-
-      const lastRowContainer = document.createElement('div');
-      lastRowContainer.style.marginTop = '20px';
-
-      const lastRowNum = document.createElement('div');
-      lastRowNum.className = 'row-number';
-      lastRowNum.textContent = '11';
-      lastRowNum.style.marginBottom = '8px';
-      lastRowNum.style.textAlign = 'center';
-      lastRowContainer.appendChild(lastRowNum);
-
-      const lastRow = document.createElement('div');
-      lastRow.className = 'last-row';
-      for (let i=0;i<5;i++) lastRow.appendChild(createSeat(seatCounter++));
-      lastRowContainer.appendChild(lastRow);
-
-      busSeats.appendChild(lastRowContainer);
+    function detectEnv(){
+      const ua = navigator.userAgent || '';
+      return {
+        isIOS: /iPhone|iPad|iPod/i.test(ua),
+        isAndroid: /Android/i.test(ua),
+        isKakaoInApp: /KAKAOTALK/i.test(ua)
+      };
     }
 
     function createSeat(number){
@@ -428,14 +484,14 @@
 
       const input = document.createElement('input');
       input.type = 'text';
-      input.placeholder = ''; // 빈 좌석에서 "좌석" 같은 글씨가 캡처에 보이는 것 방지
+      input.placeholder = '';
       input.dataset.seat = number;
 
       input.addEventListener('input', (e)=>{
-        const value = e.target.value.trim();
-        if (value){
+        const v = e.target.value.trim();
+        if (v){
           seat.classList.add('filled');
-          seatData[number] = value;
+          seatData[number] = v;
         } else {
           seat.classList.remove('filled');
           delete seatData[number];
@@ -447,6 +503,41 @@
       return seat;
     }
 
+    function buildSeats(){
+      const busSeats = document.getElementById('bus-seats');
+      const lastRow = document.getElementById('last-row');
+      busSeats.innerHTML = '';
+      lastRow.innerHTML = '';
+      seatCounter = 1;
+
+      // 10 rows * 4 seats = 40
+      for (let row=1; row<=10; row++){
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row';
+
+        const rowNum = document.createElement('div');
+        rowNum.className = 'row-number';
+        rowNum.textContent = row;
+        rowDiv.appendChild(rowNum);
+
+        rowDiv.appendChild(createSeat(seatCounter++));
+        rowDiv.appendChild(createSeat(seatCounter++));
+        const aisle = document.createElement('div');
+        aisle.className = 'aisle';
+        aisle.textContent = '🚶';
+        rowDiv.appendChild(aisle);
+        rowDiv.appendChild(createSeat(seatCounter++));
+        rowDiv.appendChild(createSeat(seatCounter++));
+
+        busSeats.appendChild(rowDiv);
+      }
+
+      // last row 5 seats = 45
+      for (let i=0;i<5;i++){
+        lastRow.appendChild(createSeat(seatCounter++));
+      }
+    }
+
     function buildStanding(count){
       const list = document.getElementById('standing-list');
       list.innerHTML = '';
@@ -455,35 +546,29 @@
       standingData = next;
 
       for (let i=0;i<count;i++){
-        list.appendChild(createStandingItem(i));
+        const item = document.createElement('div');
+        item.className = 'standing-item';
+        item.dataset.standing = i;
+
+        const badge = document.createElement('div');
+        badge.className = 'standing-badge';
+        badge.textContent = i + 1;
+        item.appendChild(badge);
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = '이름';
+        input.dataset.standing = i;
+
+        input.addEventListener('input', (e)=>{
+          const v = e.target.value.trim();
+          standingData[i] = v;
+          updateStatus();
+        });
+
+        item.appendChild(input);
+        list.appendChild(item);
       }
-    }
-
-    function createStandingItem(index){
-      const item = document.createElement('div');
-      item.className = 'standing-item';
-      item.dataset.standing = index;
-
-      const badge = document.createElement('div');
-      badge.className = 'standing-badge';
-      badge.textContent = index + 1;
-      item.appendChild(badge);
-
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.placeholder = '이름';
-      input.dataset.standing = index;
-
-      input.addEventListener('input', (e)=>{
-        const v = e.target.value.trim();
-        standingData[index] = v;
-        if (v) item.classList.add('filled');
-        else item.classList.remove('filled');
-        updateStatus();
-      });
-
-      item.appendChild(input);
-      return item;
     }
 
     function addStanding(){
@@ -511,6 +596,19 @@
       showToast('➖ 복도 칸 삭제');
     }
 
+    function updateStatus(){
+      const seatCount = Object.keys(seatData).length;
+      const standingCount = standingData.filter(v => (v||'').trim()).length;
+      const total = seatCount + standingCount;
+
+      document.getElementById('status').innerHTML =
+        `탑승인원: <strong>${total}</strong>명 (좌석 <strong>${seatCount}</strong>/45, 복도 <strong>${standingCount}</strong>)`;
+
+      document.getElementById('metric-seat').textContent = seatCount;
+      document.getElementById('metric-standing').textContent = standingCount;
+      document.getElementById('metric-total').textContent = total;
+    }
+
     function saveAll(){
       try{
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -535,6 +633,7 @@
         standingData = Array.isArray(payload.standingData) ? payload.standingData : [];
         const slots = payload.standingSlots || Math.max(DEFAULT_STANDING_SLOTS, standingData.length || 0);
 
+        // 좌석 반영
         Object.keys(seatData).forEach(seatNum=>{
           const input = document.querySelector(`input[data-seat="${seatNum}"]`);
           if (input){
@@ -543,12 +642,11 @@
           }
         });
 
+        // 복도 반영
         buildStanding(Math.min(Math.max(1, slots), MAX_STANDING_SLOTS));
         standingData.forEach((name, i)=>{
           const input = document.querySelector(`input[data-standing="${i}"]`);
-          const item = document.querySelector(`.standing-item[data-standing="${i}"]`);
           if (input) input.value = name || '';
-          if (item && (name || '').trim()) item.classList.add('filled');
         });
 
       } catch(e){
@@ -562,9 +660,9 @@
       seatData = {};
       standingData = Array.from({ length: DEFAULT_STANDING_SLOTS }, ()=>'');
 
-      document.querySelectorAll('.seat input').forEach(input=>{
-        input.value = '';
-        input.parentElement.classList.remove('filled');
+      document.querySelectorAll('input[data-seat]').forEach(inp=>{
+        inp.value = '';
+        inp.parentElement.classList.remove('filled');
       });
 
       buildStanding(DEFAULT_STANDING_SLOTS);
@@ -574,54 +672,17 @@
       showToast('🗑️ 전체 삭제 완료');
     }
 
-    function updateStatus(){
-      const seatCount = Object.keys(seatData).length;
-      const standingCount = standingData.filter(v => (v || '').trim()).length;
-      const total = seatCount + standingCount;
-
-      document.getElementById('status').innerHTML =
-        `탑승인원: <strong>${total}</strong>명 (좌석 <strong>${seatCount}</strong>/45, 복도 <strong>${standingCount}</strong>)`;
-
-      document.getElementById('metric-seat').textContent = seatCount;
-      document.getElementById('metric-standing').textContent = standingCount;
-      document.getElementById('metric-total').textContent = total;
-    }
-
-    function showToast(message){
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(()=>toast.classList.remove('show'), 2600);
-    }
-
-    function detectEnv(){
-      const ua = navigator.userAgent || '';
-      return {
-        isIOS: /iPhone|iPad|iPod/i.test(ua),
-        isAndroid: /Android/i.test(ua),
-        isKakaoInApp: /KAKAOTALK/i.test(ua)
-      };
-    }
-
-    /* =========================
-       ✅ 캡처 전/후: input → 표시텍스트(seat-label)로 변환
-       ========================= */
+    /* ===== 캡처 전처리: input 대신 seat-label 생성(2줄 클램프) ===== */
     function prepareSeatsForCapture(){
-      // 기존 label 있으면 제거(안전)
       document.querySelectorAll('.seat .seat-label').forEach(el=>el.remove());
 
       document.querySelectorAll('.seat').forEach(seat=>{
         const input = seat.querySelector('input');
         const name = (input && input.value) ? input.value.trim() : '';
 
-        // 빈 칸이면 label도 빈 문자열(아예 안 보이게)
         const label = document.createElement('div');
         label.className = 'seat-label';
-
-        // 캡처 안정성: 길면 2줄로 보여도 되도록 자연스럽게
-        label.textContent = name ? name : '';
-
+        label.textContent = name ? name : '';  // 빈칸은 아예 표시 안 함
         seat.appendChild(label);
       });
     }
@@ -633,17 +694,19 @@
     async function renderToPngFile(){
       const container = document.getElementById('capture-area');
 
-      // ✅ 캡처 전처리
       setCaptureDate();
       prepareSeatsForCapture();
       document.body.classList.add('capturing');
 
+      // ✅ “전체 폭(920px)” 그대로 캡처
       const canvas = await html2canvas(container, {
         backgroundColor: '#ffffff',
         scale: 2,
         logging: false,
         scrollY: -window.scrollY,
-        scrollX: -window.scrollX
+        scrollX: -window.scrollX,
+        width: container.scrollWidth,
+        height: container.scrollHeight
       });
 
       document.body.classList.remove('capturing');
@@ -657,7 +720,7 @@
       return new File([blob], `버스좌석배치_${date}.png`, { type:'image/png' });
     }
 
-    // ✅ 카톡 텍스트 붙는 문제 방지: title/text 없이 files만 전달
+    // ✅ 카톡 텍스트 딸려나가는 문제 방지: files만 공유
     async function shareSeatingImage(){
       const { isIOS, isAndroid, isKakaoInApp } = detectEnv();
 
@@ -688,16 +751,24 @@
       }
     }
 
-    // ✅ 자동저장: 좌석/복도 입력에서만
+    // 자동저장
     let saveTimeout;
     document.addEventListener('input', (e)=>{
       const t = e.target;
       if (!(t && t.matches)) return;
-      if (!(t.matches('#bus-seats input') || t.matches('#standing-list input'))) return;
+      if (!(t.matches('input[data-seat]') || t.matches('input[data-standing]'))) return;
 
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(()=>saveAll(), 900);
     });
+
+    function init(){
+      buildSeats();
+      buildStanding(DEFAULT_STANDING_SLOTS);
+      loadAll();
+      updateStatus();
+      setCaptureDate();
+    }
 
     init();
   </script>
